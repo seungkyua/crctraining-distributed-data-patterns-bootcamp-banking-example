@@ -39,7 +39,16 @@ public class AccountService {
   }
 
   private void publishAccountOpenedEvent(Account account) {
-    throw new RuntimeException("not yet implemented");
+//    throw new RuntimeException("not yet implemented");
+
+    domainEventPublisher.publish(
+            Account.class,
+            account.getId(),
+            Collections.singletonList(
+                    new AccountOpenedEvent(
+                            new AccountInfo(account.getCustomerId(), account.getName(), account.getBalance())
+                    )
+    ));
   }
 
   public Optional<Account> findAccount(long id) {
