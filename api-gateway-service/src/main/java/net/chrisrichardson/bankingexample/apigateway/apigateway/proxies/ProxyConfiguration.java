@@ -29,7 +29,7 @@ public class ProxyConfiguration {
   private long apiGatewayTimeoutMillis;
 
   @Bean
-  public AccountServiceProxy orderServiceProxy(ApiGatewayDestinations apiGatewayDestinations, WebClient client, CircuitBreakerRegistry circuitBreakerRegistry, TimeLimiterRegistry timeLimiterRegistry) {
+  public AccountServiceProxy accountServiceProxy(ApiGatewayDestinations apiGatewayDestinations, WebClient client, CircuitBreakerRegistry circuitBreakerRegistry, TimeLimiterRegistry timeLimiterRegistry) {
     return new AccountServiceProxy(apiGatewayDestinations, client, circuitBreakerRegistry, timeLimiterRegistry);
   }
 

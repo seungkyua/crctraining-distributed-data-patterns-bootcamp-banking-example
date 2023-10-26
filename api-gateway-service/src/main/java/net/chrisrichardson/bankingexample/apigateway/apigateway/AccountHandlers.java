@@ -18,18 +18,39 @@ import static org.springframework.web.reactive.function.BodyInserters.fromValue;
 
 public class AccountHandlers {
 
-  private AccountServiceProxy orderService;
+  private AccountServiceProxy accountService;
   private CustomerServiceProxy customerService;
 
-  public AccountHandlers(AccountServiceProxy orderService, CustomerServiceProxy customerService) {
-    this.orderService = orderService;
+  public AccountHandlers(AccountServiceProxy accountService, CustomerServiceProxy customerService) {
+    this.accountService = accountService;
     this.customerService = customerService;
   }
 
   @NotNull
   public Mono<ServerResponse> getAccountWithCustomer(ServerRequest serverRequest) {
-    throw new RuntimeException("not yet implemented");
-  }
+//    throw new RuntimeException("not yet implemented");
 
+    String accountId = serverRequest.pathVariable("accountId");
+
+    Mono<Optional<GetAccountResponse>> accountResponse = accountService.findAccountById(accountId);
+
+    return accountResponse
+            .flatMap(maybeAccount -> maybeAccount
+                    .map(account -> {
+                        Mono<CustomerInfo> customerResponse = customerService.findCustomerById(
+                                account.getAccountInfo().getCustomerId());
+                        Mono<AccountWithCustomer> accountWithCustomerResponse = customerResponse
+                                .map(customer -> new AccountWithCustomer(account, customer));
+
+                        return accountWithCustomerResponse
+                                .flatMap(accountWithCustomer -> ServerResponse
+                                        .ok()
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .body(fromValue(accountWithCustomer))
+                                );
+                    })
+                    .orElseGet(() -> ServerResponse.notFound().build())
+            );
+  }
 
 }
